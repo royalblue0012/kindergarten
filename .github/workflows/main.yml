@@ -49,3 +49,9 @@ jobs:
             git commit -m "Update seen_links cache [skip ci]"
             git push
           fi
+          
+      - name: Checkout code
+        uses: actions/checkout@v4.1.1 # 指定更具體的次版本
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
