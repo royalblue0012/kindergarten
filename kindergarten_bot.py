@@ -75,3 +75,15 @@ def monitor_kindergarten():
 
 if __name__ == "__main__":
     monitor_kindergarten()
+  
+   import requests
+
+# 這裡暫時手動填入你的資訊做測試
+TOKEN = "你的_BOT_TOKEN"
+CHAT_ID = "你的_CHAT_ID"
+message = "測試訊息：機器人連線成功！"
+
+url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+payload = {"chat_id": CHAT_ID, "text": message}
+r = requests.post(url, json=payload)
+print(r.json()) # 查看回傳結果
