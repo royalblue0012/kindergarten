@@ -1,0 +1,36 @@
+name: Kindergarten Info Bot
+
+on:
+  schedule:
+    - cron: '0 1,13 * * *' # 香港時間 9:00 AM 和 9:00 PM
+  workflow_dispatch: # 允許手動觸發測試
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 feedparser
+
+      - name: Run bot
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python kindergarten_bot.py
+
+      - name: Commit and push seen_links
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add seen_links.txt
+          git commit -m "Update seen links [skip ci]" || exit 0
+          git push
