@@ -5,17 +5,21 @@ on:
     - cron: '0 1,13 * * *' # 香港時間 9:00 AM 和 9:00 PM
   workflow_dispatch: # 允許手動觸發測試
 
+# 加入這部分來解決權限問題
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 已更新至 v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 已更新至 v5
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -33,14 +37,10 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add seen_links.txt
-          # 只有在檔案有變動時才 commit，避免報錯
-          git commit -m "Update seen_links cache [skip ci]" || echo "No changes to commit"
-          git push
-
-      - name: Commit and push seen_links
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add seen_links.txt
-          git commit -m "Update seen links [skip ci]" || exit 0
-          git push
+          # 檢查是否有變動，避免無變動時 commit 報錯
+          if git diff --quiet && git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update seen_links cache [skip ci]"
+            git push
+          fi
