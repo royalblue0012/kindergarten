@@ -11,10 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # --- 加入這兩行 ---
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    # ----------------
+    # 移除 FORCE_JAVASCRIPT_ACTIONS_TO_NODE24 以減少警告衝突
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,9 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-
-      # ... 後續步驟保持不變 ...
+          python-version: '3.10' # 確保這兩行縮排正確
 
       - name: Install dependencies
         run: |
@@ -37,21 +32,14 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python kindergarten_bot.py
 
-      - name: Save state (Keep seen_links updated)
+      - name: Save state
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add seen_links.txt
-          # 檢查是否有變動，避免無變動時 commit 報錯
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
           else
             git commit -m "Update seen_links cache [skip ci]"
             git push
           fi
-          
-      - name: Checkout code
-        uses: actions/checkout@v4.1.1 # 指定更具體的次版本
-
-      - name: Set up Python
-        uses: actions/setup-python@v5.0.0
